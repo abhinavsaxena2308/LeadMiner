@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, MapPin, Play, Loader2, Filter,
+  Search, MapPin, Loader2, Filter,
   LogOut, Zap, TrendingUp, Database, Clock,
   ChevronDown, ChevronUp, Globe, Phone, Star
 } from 'lucide-react';
