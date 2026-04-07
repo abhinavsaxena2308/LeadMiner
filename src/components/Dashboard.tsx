@@ -35,9 +35,9 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string |
       {icon}
     </div>
     <div>
-      <p className="text-xs text-slate-500 font-medium">{label}</p>
-      <p className="text-lg font-bold text-slate-100">{value}</p>
-      {sub && <p className="text-[10px] text-slate-500">{sub}</p>}
+      <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">{label}</p>
+      <p className="text-xl font-bold text-slate-900 tracking-tight">{value}</p>
+      {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
     </div>
   </div>
 );
@@ -168,16 +168,16 @@ export const Dashboard: React.FC = () => {
     <div className={`min-h-screen flex flex-col transition-all duration-500 ${!apiKey ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
 
       {/* ── Top Nav ───────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#0b0f1a]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-black/[0.04] bg-white/70 backdrop-blur-3xl">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <div className="relative w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center shadow-sm">
               <MapPin className="w-5 h-5 text-white" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0b0f1a]" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-white leading-none tracking-tight">LeadMiner<span className="text-indigo-400"> AI</span></h1>
+              <h1 className="text-[15px] font-bold text-slate-900 leading-none tracking-tight">LeadMiner<span className="text-blue-500"> AI</span></h1>
               <p className="text-[10px] text-slate-500 font-medium leading-none mt-0.5">Google Maps Scraper</p>
             </div>
           </div>
@@ -185,10 +185,10 @@ export const Dashboard: React.FC = () => {
           {/* Right controls */}
           <div className="flex items-center gap-3">
             {/* Apify status */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-              <span className="relative flex h-2 w-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] font-semibold tracking-wide">
+              <span className="relative flex h-2 h-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
               Apify Connected
             </div>
@@ -196,7 +196,7 @@ export const Dashboard: React.FC = () => {
             {/* Mobile filter toggle */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.06] border border-white/10 text-slate-300 text-sm font-medium hover:bg-white/10 transition-colors"
+              className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
             >
               <Filter className="w-4 h-4" />
               Filters
@@ -206,9 +206,9 @@ export const Dashboard: React.FC = () => {
             <button
               onClick={clearApiKey}
               title="Change API Key"
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-300 hover:bg-white/[0.06] transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4.5 h-4.5" />
             </button>
           </div>
         </div>
@@ -249,7 +249,7 @@ export const Dashboard: React.FC = () => {
                 {/* ── Search Panel ── */}
                 <div className="glass rounded-2xl p-5 space-y-4 animate-slide-up" style={{ animationDelay: '0ms' }}>
                   <h2 className="section-title">
-                    <Search className="w-4 h-4 text-indigo-400" />
+                    <Search className="w-4 h-4 text-blue-500" />
                     Search Query
                   </h2>
 
@@ -260,7 +260,7 @@ export const Dashboard: React.FC = () => {
                       value={filters.query}
                       onChange={e => setFilters({ ...filters, query: e.target.value })}
                       placeholder="e.g. Plumbers, Restaurants"
-                      className="input-field glow-focus"
+                      className="input-field"
                     />
                   </div>
 
@@ -271,14 +271,14 @@ export const Dashboard: React.FC = () => {
                       value={filters.location}
                       onChange={e => setFilters({ ...filters, location: e.target.value })}
                       placeholder="e.g. New York, NY"
-                      className="input-field glow-focus"
+                      className="input-field"
                     />
                   </div>
 
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="sidebar-label mb-0">Max Results</label>
-                      <span className="text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-lg">
+                      <span className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-[6px]">
                         {filters.maxResults}
                       </span>
                     </div>
@@ -287,9 +287,9 @@ export const Dashboard: React.FC = () => {
                       min="1" max="200"
                       value={filters.maxResults}
                       onChange={e => setFilters({ ...filters, maxResults: parseInt(e.target.value) })}
-                      className="w-full accent-indigo-500 cursor-pointer"
+                      className="w-full accent-blue-500 cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] text-slate-600 mt-1">
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
                       <span>1</span><span>200</span>
                     </div>
                   </div>
@@ -299,15 +299,15 @@ export const Dashboard: React.FC = () => {
                 <div className="glass rounded-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '60ms' }}>
                   <button
                     onClick={() => setFiltersExpanded(!filtersExpanded)}
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-black/[0.01] transition-colors"
                   >
                     <h2 className="section-title mb-0">
-                      <Filter className="w-4 h-4 text-indigo-400" />
+                      <Filter className="w-4 h-4 text-blue-500" />
                       Smart Filters
                     </h2>
                     {filtersExpanded
-                      ? <ChevronUp className="w-4 h-4 text-slate-500" />
-                      : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                      ? <ChevronUp className="w-4 h-4 text-slate-400" />
+                      : <ChevronDown className="w-4 h-4 text-slate-400" />}
                   </button>
 
                   <AnimatePresence initial={false}>
@@ -320,41 +320,41 @@ export const Dashboard: React.FC = () => {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 space-y-4 border-t border-white/[0.06] pt-4">
+                        <div className="px-5 pb-5 space-y-4 border-t border-black/[0.04] pt-4">
                           {/* No Website toggle */}
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="flex items-center gap-2">
-                                <Globe className="w-3.5 h-3.5 text-orange-400" />
-                                <span className="text-sm font-semibold text-orange-300">No Website</span>
-                                <span className="text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded uppercase tracking-wider">Hot</span>
+                                <Globe className="w-3.5 h-3.5 text-orange-500" />
+                                <span className="text-sm font-semibold text-slate-800">No Website</span>
+                                <span className="text-[9px] font-bold bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-[4px] uppercase tracking-widest">Hot</span>
                               </div>
                               <p className="text-[11px] text-slate-500 mt-0.5 ml-5.5">Best for web dev outreach</p>
                             </div>
                             <Toggle checked={filters.noWebsite} onChange={v => setFilters({ ...filters, noWebsite: v })} color="bg-orange-500" />
                           </div>
 
-                          <div className="h-px bg-white/[0.06]" />
+                          <div className="h-px bg-black/[0.04]" />
 
                           {/* Has Phone */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                              <span className="text-sm font-medium text-slate-300">Has Phone Number</span>
+                              <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                              <span className="text-sm font-medium text-slate-700">Has Phone Number</span>
                             </div>
                             <Toggle checked={filters.hasPhone} onChange={v => setFilters({ ...filters, hasPhone: v })} color="bg-emerald-500" />
                           </div>
 
-                          <div className="h-px bg-white/[0.06]" />
+                          <div className="h-px bg-black/[0.04]" />
 
                           {/* Min Rating */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
-                                <Star className="w-3.5 h-3.5 text-yellow-400" />
-                                <span className="text-sm font-medium text-slate-300">Min Rating</span>
+                                <Star className="w-3.5 h-3.5 text-yellow-500" />
+                                <span className="text-sm font-medium text-slate-700">Min Rating</span>
                               </div>
-                              <span className="text-xs font-bold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-lg">
+                              <span className="text-[11px] font-bold text-yellow-600 bg-yellow-50 border border-yellow-100 px-2 py-0.5 rounded-[6px]">
                                 {filters.minRating === 0 ? 'Any' : `${filters.minRating}★`}
                               </span>
                             </div>
@@ -379,16 +379,9 @@ export const Dashboard: React.FC = () => {
                 <button
                   onClick={handleScrape}
                   disabled={loading || !filters.query}
-                  className="animate-slide-up w-full relative group overflow-hidden rounded-2xl py-4 font-bold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="animate-slide-up w-full relative overflow-hidden rounded-xl py-3.5 font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-slate-900 hover:bg-slate-800 shadow-md group"
                   style={{ animationDelay: '120ms' }}
                 >
-                  {/* gradient bg */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-sky-500 group-hover:from-indigo-500 group-hover:to-sky-400 transition-all duration-300" />
-                  {/* shine */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12" />
-                  {/* shadow glow */}
-                  <div className="absolute inset-0 shadow-xl shadow-indigo-500/30 rounded-2xl" />
-
                   <span className="relative flex items-center justify-center gap-2.5">
                     {loading ? (
                       <>
@@ -397,7 +390,7 @@ export const Dashboard: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Zap className="w-5 h-5 fill-current" />
+                        <Zap className="w-4 h-4 fill-current text-white group-hover:scale-110 transition-transform" />
                         <span>Start Lead Engine</span>
                       </>
                     )}
@@ -434,32 +427,32 @@ export const Dashboard: React.FC = () => {
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3"
               >
                 <StatCard
-                  icon={<Database className="w-5 h-5 text-indigo-300" />}
+                  icon={<Database className="w-5 h-5 text-blue-500" />}
                   label="Total Leads"
                   value={results.length}
                   sub="results found"
-                  color="bg-indigo-500/20"
+                  color="bg-blue-50 border border-blue-100"
                 />
                 <StatCard
-                  icon={<Globe className="w-5 h-5 text-orange-300" />}
+                  icon={<Globe className="w-5 h-5 text-orange-500" />}
                   label="No Website"
                   value={noWebsiteCount}
                   sub="web dev targets"
-                  color="bg-orange-500/20"
+                  color="bg-orange-50 border border-orange-100"
                 />
                 <StatCard
-                  icon={<Star className="w-5 h-5 text-yellow-300" />}
+                  icon={<Star className="w-5 h-5 text-yellow-500" />}
                   label="Avg Rating"
                   value={avgRating}
                   sub="stars average"
-                  color="bg-yellow-500/20"
+                  color="bg-yellow-50 border border-yellow-100"
                 />
                 <StatCard
-                  icon={<Phone className="w-5 h-5 text-emerald-300" />}
+                  icon={<Phone className="w-5 h-5 text-emerald-500" />}
                   label="Has Phone"
                   value={withPhoneCount}
-                  sub="contactable leads"
-                  color="bg-emerald-500/20"
+                  sub="contact notes"
+                  color="bg-emerald-50 border border-emerald-100"
                 />
               </motion.div>
             )}
@@ -475,29 +468,29 @@ export const Dashboard: React.FC = () => {
                 className="glass rounded-2xl border border-white/[0.06] overflow-hidden flex flex-col shadow-2xl shadow-indigo-500/10"
               >
                 {/* Console header */}
-                <div className="bg-[#0b0f1a] border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
+                <div className="bg-slate-50 border-b border-black/[0.04] px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500/90 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500/90 shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
-                      <div className="w-3 h-3 rounded-full bg-emerald-500/90 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                      <div className="w-3 h-3 rounded-full bg-[#ff5f57] shadow-sm" />
+                      <div className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-sm" />
+                      <div className="w-3 h-3 rounded-full bg-[#28c840] shadow-sm" />
                     </div>
-                    <div className="flex items-center gap-2 px-2 py-1 bg-white/[0.03] rounded-md border border-white/[0.05]">
-                       <Loader2 className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
-                       <span className="text-xs font-mono font-medium text-slate-300">
+                    <div className="flex items-center gap-2 px-2 py-1 bg-black/[0.03] rounded-md border border-black/[0.05]">
+                       <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+                       <span className="text-xs font-mono font-medium text-slate-600">
                          {status === 'FETCHING' ? 'root@leadminer:~/dataset/fetch' : 'root@leadminer:~/engine/scrape'}
                        </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.05] px-2.5 py-1 rounded-md">
+                  <div className="flex items-center gap-1.5 bg-black/[0.03] border border-black/[0.05] px-2.5 py-1 rounded-md">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-mono font-bold text-indigo-300">{formatTime(timeElapsed)}</span>
+                    <span className="text-xs font-mono font-bold text-blue-600">{formatTime(timeElapsed)}</span>
                   </div>
                 </div>
                 
                 {/* Console body */}
-                <div className="p-5 font-mono text-[11px] md:text-[13px] leading-relaxed text-slate-300 h-[280px] overflow-y-auto flex flex-col justify-end bg-black/50 backdrop-blur-3xl relative">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/5 via-transparent to-transparent pointer-events-none" />
+                <div className="p-5 font-mono text-[11px] md:text-[13px] leading-relaxed text-slate-700 h-[280px] overflow-y-auto flex flex-col justify-end bg-white/80 backdrop-blur-3xl relative">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent pointer-events-none" />
                   <div className="space-y-1.5 w-full relative z-10 transition-all duration-300">
                     {logs.map((log, i) => {
                       const isError = log.includes('[ERROR]');
@@ -505,11 +498,11 @@ export const Dashboard: React.FC = () => {
                       const isConfig = log.includes('[CONFIG]');
                       const isApify = log.includes('[APIFY]');
                       
-                      let colorClass = 'text-slate-400';
-                      if (isError) colorClass = 'text-red-400 font-semibold';
-                      else if (isSystem) colorClass = 'text-indigo-300 font-semibold';
-                      else if (isConfig) colorClass = 'text-emerald-400';
-                      else if (isApify) colorClass = 'text-sky-400 font-medium';
+                      let colorClass = 'text-slate-500';
+                      if (isError) colorClass = 'text-red-500 font-semibold';
+                      else if (isSystem) colorClass = 'text-blue-600 font-semibold';
+                      else if (isConfig) colorClass = 'text-emerald-600';
+                      else if (isApify) colorClass = 'text-indigo-600 font-medium';
 
                       return (
                         <motion.div 
@@ -518,19 +511,19 @@ export const Dashboard: React.FC = () => {
                           animate={{ opacity: 1, x: 0 }}
                           className={`break-all ${colorClass} flex gap-2`}
                         >
-                          <span className="text-slate-600 select-none">{'>'}</span>
+                          <span className="text-slate-400 select-none">{'>'}</span>
                           <span>{log}</span>
                         </motion.div>
                       );
                     })}
                     {/* Blinking cursor */}
                     <div className="flex gap-2 items-center">
-                      <span className="text-slate-600 select-none">{'>'}</span>
+                      <span className="text-slate-400 select-none">{'>'}</span>
                       <motion.div 
                         key="cursor"
                         animate={{ opacity: [1, 0, 1] }}
                         transition={{ repeat: Infinity, duration: 1 }}
-                        className="inline-block w-2 bg-indigo-400 h-3.5 align-middle shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                        className="inline-block w-2 bg-blue-500 h-3.5 align-middle shadow-sm"
                       />
                     </div>
                   </div>
@@ -550,26 +543,26 @@ export const Dashboard: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex-1 glass rounded-2xl flex flex-col items-center justify-center text-center p-12 min-h-[420px]"
+              className="flex-1 glass rounded-[28px] flex flex-col items-center justify-center text-center p-12 min-h-[420px]"
             >
               <div className="relative mb-6">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500/20 to-sky-500/20 border border-white/[0.06] flex items-center justify-center">
-                  <TrendingUp className="w-12 h-12 text-indigo-400" />
+                <div className="w-24 h-24 rounded-[28px] bg-slate-50 border border-slate-200/60 flex items-center justify-center shadow-sm">
+                  <TrendingUp className="w-10 h-10 text-slate-400" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                  <Zap className="w-4 h-4 text-white fill-current" />
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-md border-2 border-white">
+                  <Zap className="w-3.5 h-3.5 text-white fill-current" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Ready to mine leads?</h3>
-              <p className="text-slate-400 max-w-sm text-sm leading-relaxed mb-8">
-                Configure your search query and filters in the sidebar, then hit <strong className="text-indigo-400">Start Lead Engine</strong> to extract real Google Maps data.
+              <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Ready to mine leads?</h3>
+              <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed mb-8">
+                Configure your search query and filters in the sidebar, then hit <strong className="font-semibold text-slate-900">Start Lead Engine</strong> to extract real Google Maps data.
               </p>
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-2.5">
                 {['Restaurants', 'Plumbers', 'Dentists', 'Gyms', 'Lawyers'].map(q => (
                   <button
                     key={q}
                     onClick={() => setFilters(f => ({ ...f, query: q }))}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] border border-white/10 text-slate-400 hover:text-slate-200 hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all"
+                    className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm"
                   >
                     {q}
                   </button>

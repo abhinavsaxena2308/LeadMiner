@@ -42,14 +42,14 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'orange' | 'red' | 
   children, variant = 'slate',
 }) => {
   const styles = {
-    orange:  'bg-orange-500/15 text-orange-300 border-orange-500/25',
-    red:     'bg-red-500/15 text-red-300 border-red-500/25',
-    yellow:  'bg-yellow-500/15 text-yellow-300 border-yellow-500/25',
-    emerald: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25',
-    slate:   'bg-white/[0.06] text-slate-400 border-white/10',
+    orange:  'bg-orange-50 text-orange-600 border-orange-200',
+    red:     'bg-red-50 text-red-600 border-red-200',
+    yellow:  'bg-yellow-50 text-yellow-700 border-yellow-200',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    slate:   'bg-white text-slate-600 border-slate-200',
   };
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide ${styles[variant]}`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-[6px] border text-[10px] font-bold uppercase tracking-widest ${styles[variant]} shadow-sm`}>
       {children}
     </span>
   );
@@ -80,9 +80,9 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
 
   if (data.length === 0) {
     return (
-      <div className="glass rounded-2xl flex flex-col items-center justify-center text-center p-12 min-h-[280px]">
-        <Building2 className="w-12 h-12 text-slate-600 mb-4" />
-        <h3 className="text-base font-semibold text-slate-300 mb-1">No leads found</h3>
+      <div className="glass rounded-[28px] flex flex-col items-center justify-center text-center p-12 min-h-[280px]">
+        <Building2 className="w-12 h-12 text-slate-300 mb-4" />
+        <h3 className="text-[15px] font-bold text-slate-900 mb-1">No leads found</h3>
         <p className="text-sm text-slate-500">Try adjusting your filters or running a new search.</p>
       </div>
     );
@@ -94,13 +94,13 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
       `https://www.google.com/maps/search/${encodeURIComponent(lead.title || '')}`);
 
   return (
-    <div className="glass rounded-2xl overflow-hidden flex flex-col">
+    <div className="glass rounded-[28px] overflow-hidden flex flex-col shadow-sm">
       {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between gap-4 bg-white/[0.02] sticky top-0 z-10 backdrop-blur-xl">
+      <div className="px-5 py-3.5 border-b border-black/[0.04] flex items-center justify-between gap-4 bg-white/70 sticky top-0 z-10 backdrop-blur-3xl">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold text-slate-200">{data.length} Leads</h2>
+          <h2 className="text-[15px] font-bold text-slate-900 tracking-tight">{data.length} Leads</h2>
           {selected.size > 0 && (
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-[6px] bg-blue-50 text-blue-600 border border-blue-100">
               {selected.size} selected
             </span>
           )}
@@ -109,16 +109,16 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
           <button
             onClick={() => exportToCsv(data.filter((_, i) => selected.has(i)), 'leadminer-selected')}
             disabled={selected.size === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 bg-white/[0.06] border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download className="w-3.5 h-3.5" />
             Export Selected
           </button>
           <button
             onClick={() => exportToCsv(data, 'leadminer-all')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-gradient-to-r from-brand-600 to-sky-500 hover:from-brand-500 hover:to-sky-400 transition-all shadow-lg shadow-brand-500/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-white bg-slate-900 hover:bg-slate-800 transition-all shadow-md group"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-white/70 group-hover:text-white" />
             Export All CSV
           </button>
         </div>
@@ -128,11 +128,11 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead>
-            <tr className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider border-b border-white/[0.06] bg-white/[0.02]">
+            <tr className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-black/[0.04] bg-slate-50/50">
               <th className="p-4 w-10">
-                <button onClick={toggleAll} className="text-slate-500 hover:text-brand-400 transition-colors">
+                <button onClick={toggleAll} className="text-slate-400 hover:text-blue-500 transition-colors">
                   {selected.size === data.length
-                    ? <CheckSquare className="w-4 h-4 text-brand-400" />
+                    ? <CheckSquare className="w-4 h-4 text-blue-500" />
                     : <Square className="w-4 h-4" />}
                 </button>
               </th>
@@ -145,7 +145,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-black/[0.03]">
             {data.map((lead, idx) => {
               const isSelected = selected.has(idx);
               const isExpanded = expanded === idx;
@@ -157,23 +157,23 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                   {/* ── Main Row ── */}
                   <tr
                     className={`group transition-colors cursor-pointer
-                      ${isSelected ? 'bg-brand-500/[0.07]' : 'hover:bg-white/[0.03]'}
-                      ${noWebsite && !isSelected ? 'bg-orange-500/[0.04]' : ''}
+                      ${isSelected ? 'bg-blue-50/50' : 'hover:bg-slate-50'}
+                      ${noWebsite && !isSelected ? 'bg-orange-50/30 hover:bg-orange-50' : ''}
                     `}
                   >
                     {/* Checkbox */}
                     <td className="p-4" onClick={e => { e.stopPropagation(); toggleSelect(idx); }}>
-                      <button className="text-slate-500 hover:text-brand-400 transition-colors">
+                      <button className="text-slate-400 hover:text-blue-500 transition-colors">
                         {isSelected
-                          ? <CheckSquare className="w-4 h-4 text-brand-400" />
+                          ? <CheckSquare className="w-4 h-4 text-blue-500" />
                           : <Square className="w-4 h-4" />}
                       </button>
                     </td>
 
                     {/* Business */}
                     <td className="px-4 py-3.5 max-w-[200px]" onClick={() => toggleExpand(idx)}>
-                      <p className="font-semibold text-slate-100 truncate leading-tight">{lead.title || 'Unknown'}</p>
-                      <div className="flex flex-wrap gap-1 mt-1.5">
+                      <p className="text-[13px] font-bold text-slate-900 truncate tracking-tight">{lead.title || 'Unknown'}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
                         {noWebsite && <Badge variant="orange">No Website</Badge>}
                         {lead.permanentlyClosed && <Badge variant="red">Closed</Badge>}
                         {lead.temporarilyClosed && <Badge variant="yellow">Temp Closed</Badge>}
@@ -182,10 +182,10 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                       {lead.website && (
                         <a
                           href={lead.website} target="_blank" rel="noopener noreferrer"
-                          className="mt-1 flex items-center gap-1 text-[11px] text-brand-400 hover:text-brand-300 truncate max-w-[180px]"
+                          className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-blue-500 hover:text-blue-600 truncate max-w-[180px]"
                           onClick={e => e.stopPropagation()}
                         >
-                          <Globe className="w-3 h-3 shrink-0" />
+                          <Globe className="w-3.5 h-3.5 shrink-0" />
                           {lead.website.replace(/^https?:\/\/(www\.)?/, '')}
                         </a>
                       )}
@@ -193,17 +193,17 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
 
                     {/* Location */}
                     <td className="px-4 py-3.5 max-w-[180px] hidden md:table-cell" onClick={() => toggleExpand(idx)}>
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-2.5">
                         <a
                           href={url} target="_blank" rel="noopener noreferrer"
                           title="Open in Google Maps"
-                          className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 hover:text-brand-300 border border-brand-500/20 transition-colors"
+                          className="mt-0.5 shrink-0 p-1.5 rounded-[8px] bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:bg-slate-50 transition-colors shadow-sm"
                           onClick={e => e.stopPropagation()}
                         >
                           <Navigation className="w-3 h-3" />
                         </a>
-                        <div className="min-w-0">
-                          <p className="text-xs text-slate-300 truncate">{lead.address || '—'}</p>
+                        <div className="min-w-0 pt-0.5">
+                          <p className="text-[13px] text-slate-700 truncate font-medium">{lead.address || '—'}</p>
                           {(lead.city || lead.state) && (
                             <p className="text-[11px] text-slate-500 truncate">
                               {[lead.city, lead.state, lead.countryCode].filter(Boolean).join(', ')}
@@ -219,24 +219,24 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                         {lead.phone ? (
                           <a
                             href={`tel:${lead.phoneUnformatted || lead.phone}`}
-                            className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-brand-300 transition-colors"
+                            className="flex items-center gap-1.5 text-[13px] text-slate-700 hover:text-blue-500 font-medium transition-colors"
                             onClick={e => e.stopPropagation()}
                           >
-                            <Phone className="w-3 h-3 text-slate-500 shrink-0" />
+                            <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             {lead.phone}
                           </a>
                         ) : (
-                          <span className="flex items-center gap-1.5 text-xs text-slate-600 italic">
-                            <Phone className="w-3 h-3" />No phone
+                          <span className="flex items-center gap-1.5 text-[12px] text-slate-400 italic">
+                            <Phone className="w-3.5 h-3.5 opacity-50" />No phone
                           </span>
                         )}
                         {lead.email && (
                           <a
                             href={`mailto:${lead.email}`}
-                            className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-brand-300 transition-colors truncate max-w-[160px]"
+                            className="flex items-center gap-1.5 text-[13px] text-slate-700 hover:text-blue-500 font-medium transition-colors truncate max-w-[160px]"
                             onClick={e => e.stopPropagation()}
                           >
-                            <Mail className="w-3 h-3 text-slate-500 shrink-0" />
+                            <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             {lead.email}
                           </a>
                         )}
@@ -246,13 +246,13 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                     {/* Rating */}
                     <td className="px-4 py-3.5" onClick={() => toggleExpand(idx)}>
                       {lead.totalScore ? (
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 whitespace-nowrap">
-                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                          <span className="text-xs font-bold text-yellow-300">{lead.totalScore}</span>
-                          <span className="text-[10px] text-slate-500">({lead.reviewsCount ?? 0})</span>
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-yellow-50 border border-yellow-100 whitespace-nowrap shadow-sm">
+                          <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                          <span className="text-[12px] font-bold text-yellow-700">{lead.totalScore}</span>
+                          <span className="text-[10px] text-yellow-600/70">({lead.reviewsCount ?? 0})</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-600 italic">No rating</span>
+                        <span className="text-[12px] text-slate-400 italic">No rating</span>
                       )}
                     </td>
 
@@ -260,12 +260,12 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                     <td className="px-4 py-3.5 hidden lg:table-cell" onClick={() => toggleExpand(idx)}>
                       <div className="flex flex-wrap gap-1 max-w-[150px]">
                         {lead.categoryName && (
-                          <span className="px-2 py-0.5 text-[11px] bg-white/[0.06] border border-white/10 rounded-md text-slate-400">
+                          <span className="px-2 py-0.5 text-[11px] bg-white border border-slate-200 shadow-sm rounded-[6px] text-slate-600 font-medium">
                             {lead.categoryName}
                           </span>
                         )}
                         {lead.categories?.slice(1, 2).map((c: string, i: number) => (
-                          <span key={i} className="px-2 py-0.5 text-[11px] bg-white/[0.03] border border-white/[0.06] rounded-md text-slate-500">
+                          <span key={i} className="px-2 py-0.5 text-[11px] bg-slate-50 border border-slate-100 rounded-[6px] text-slate-500">
                             {c}
                           </span>
                         ))}
@@ -274,7 +274,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
 
                     {/* Expand toggle */}
                     <td className="px-4 py-3.5" onClick={() => toggleExpand(idx)}>
-                      <div className="text-slate-600 group-hover:text-slate-400 transition-colors">
+                      <div className="text-slate-400 group-hover:text-slate-600 transition-colors">
                         {isExpanded
                           ? <ChevronUp className="w-4 h-4" />
                           : <ChevronDown className="w-4 h-4" />}
@@ -284,7 +284,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
 
                   {/* ── Expanded Detail Row ── */}
                   {isExpanded && (
-                    <tr className="bg-white/[0.02]">
+                    <tr className="bg-slate-50/50 shadow-inner">
                       <td colSpan={7} className="px-6 py-5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -305,16 +305,16 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                           <div>
                             <DetailTitle icon={<MapPin className="w-3 h-3" />} label="Full Address" />
                             <div className="space-y-0.5 text-sm">
-                              {lead.street && <p className="text-slate-300">{lead.street}</p>}
-                              {lead.neighborhood && <p className="text-slate-500 text-xs">{lead.neighborhood}</p>}
-                              {lead.city && <p className="text-slate-300">{lead.city}{lead.state ? `, ${lead.state}` : ''}</p>}
-                              {lead.postalCode && <p className="text-slate-500 text-xs">{lead.postalCode}</p>}
-                              {lead.countryCode && <p className="text-slate-500 text-xs">{lead.countryCode}</p>}
-                              {lead.plusCode && <p className="text-slate-600 text-[10px] mt-1 font-mono">{lead.plusCode}</p>}
+                              {lead.street && <p className="text-slate-900 font-medium">{lead.street}</p>}
+                              {lead.neighborhood && <p className="text-slate-500 text-[13px]">{lead.neighborhood}</p>}
+                              {lead.city && <p className="text-slate-700">{lead.city}{lead.state ? `, ${lead.state}` : ''}</p>}
+                              {lead.postalCode && <p className="text-slate-500 text-[13px]">{lead.postalCode}</p>}
+                              {lead.countryCode && <p className="text-slate-500 text-[13px]">{lead.countryCode}</p>}
+                              {lead.plusCode && <p className="text-slate-400 text-[10px] mt-1 font-mono">{lead.plusCode}</p>}
                             </div>
                             <a
                               href={url} target="_blank" rel="noopener noreferrer"
-                              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/25 text-brand-300 hover:text-brand-200 text-xs font-medium transition-colors"
+                              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-blue-500 hover:bg-slate-50 hover:border-blue-200 text-[13px] font-semibold transition-all shadow-sm"
                             >
                               <Navigation className="w-3 h-3" />
                               Open in Google Maps
@@ -329,7 +329,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                                 {lead.openingHours.map((h: { day: string; hours: string }, i: number) => (
                                   <div key={i} className="flex justify-between gap-3 text-xs">
                                     <span className="text-slate-500 font-medium w-20 shrink-0">{h.day}</span>
-                                    <span className={h.hours === 'Closed' ? 'text-red-400' : 'text-slate-300'}>
+                                    <span className={h.hours === 'Closed' ? 'text-red-500' : 'text-slate-700 font-medium'}>
                                       {h.hours}
                                     </span>
                                   </div>
@@ -347,58 +347,58 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                               </div>
                             )}
 
-                            <div className="space-y-1.5">
-                              {lead.menu && (
-                                <a href={lead.menu} target="_blank" rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300 transition-colors">
-                                  <Tag className="w-3 h-3" />View Menu
-                                </a>
-                              )}
-                              {lead.reserveTableUrl && (
-                                <a href={lead.reserveTableUrl} target="_blank" rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300 transition-colors">
-                                  <ExternalLink className="w-3 h-3" />Reserve Table
-                                </a>
-                              )}
-                            </div>
-
-                            {lead.description && (
-                              <div>
-                                <DetailTitle icon={<Info className="w-3 h-3" />} label="Description" />
-                                <p className="text-xs text-slate-400 leading-relaxed line-clamp-4">{lead.description}</p>
+                              <div className="space-y-1.5">
+                                {lead.menu && (
+                                  <a href={lead.menu} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-[13px] font-medium text-blue-500 hover:text-blue-600 transition-colors">
+                                    <Tag className="w-3.5 h-3.5" />View Menu
+                                  </a>
+                                )}
+                                {lead.reserveTableUrl && (
+                                  <a href={lead.reserveTableUrl} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-[13px] font-medium text-blue-500 hover:text-blue-600 transition-colors">
+                                    <ExternalLink className="w-3.5 h-3.5" />Reserve Table
+                                  </a>
+                                )}
                               </div>
-                            )}
 
-                            {lead.placeId && (
-                              <p className="text-[10px] text-slate-600 font-mono break-all">ID: {lead.placeId}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Additional Info chips */}
-                        {lead.additionalInfo && Object.keys(lead.additionalInfo).length > 0 && (
-                          <div className="mt-5 pt-5 border-t border-white/[0.06]">
-                            <DetailTitle icon={<Info className="w-3 h-3" />} label="Additional Info" />
-                            <div className="flex flex-wrap gap-x-8 gap-y-3">
-                              {Object.entries(lead.additionalInfo).map(([section, items]: [string, any]) => (
-                                <div key={section}>
-                                  <p className="text-[10px] font-semibold text-slate-500 mb-1.5">{section}</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {(items as any[]).flatMap((item: Record<string, boolean>) =>
-                                      Object.entries(item)
-                                        .filter(([, v]) => v === true)
-                                        .map(([k]) => (
-                                          <span key={k} className="px-2 py-0.5 bg-white/[0.05] border border-white/[0.08] text-slate-400 text-[11px] rounded-full">
-                                            {k}
-                                          </span>
-                                        ))
-                                    )}
-                                  </div>
+                              {lead.description && (
+                                <div>
+                                  <DetailTitle icon={<Info className="w-3 h-3" />} label="Description" />
+                                  <p className="text-[13px] text-slate-600 leading-relaxed line-clamp-4">{lead.description}</p>
                                 </div>
-                              ))}
+                              )}
+
+                              {lead.placeId && (
+                                <p className="text-[10px] text-slate-400 font-mono break-all">ID: {lead.placeId}</p>
+                              )}
                             </div>
                           </div>
-                        )}
+
+                          {/* Additional Info chips */}
+                          {lead.additionalInfo && Object.keys(lead.additionalInfo).length > 0 && (
+                            <div className="mt-5 pt-5 border-t border-black/[0.04]">
+                              <DetailTitle icon={<Info className="w-3 h-3" />} label="Additional Info" />
+                              <div className="flex flex-wrap gap-x-8 gap-y-3 mt-3">
+                                {Object.entries(lead.additionalInfo).map(([section, items]: [string, any]) => (
+                                  <div key={section}>
+                                    <p className="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wide">{section}</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {(items as any[]).flatMap((item: Record<string, boolean>) =>
+                                        Object.entries(item)
+                                          .filter(([, v]) => v === true)
+                                          .map(([k]) => (
+                                            <span key={k} className="px-2 py-1 bg-white border border-slate-200 text-slate-600 text-[11px] font-medium rounded-[6px] shadow-sm">
+                                              {k}
+                                            </span>
+                                          ))
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                       </td>
                     </tr>
                   )}
