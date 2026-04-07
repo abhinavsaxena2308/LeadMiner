@@ -51,6 +51,7 @@ export const Dashboard: React.FC = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(true);
+  const [logs, setLogs] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<ScrapeFilters>({
     query: 'Restaurants',
@@ -65,12 +66,39 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let logInterval: NodeJS.Timeout;
     if (status === 'RUNNING' || status === 'FETCHING') {
       interval = setInterval(() => setTimeElapsed(p => p + 1), 1000);
+      
+      if (status === 'RUNNING') {
+        const mockLogs = [
+          "Resolving Google Maps endpoints...",
+          "Bypassing rate limits...",
+          "Extracting business profiles...",
+          "Parsing contact details (phone, website)...",
+          "Scraping review data...",
+          "Identifying potential web development targets...",
+          "Analyzing SERP results...",
+          "Paginating through map clusters...",
+          "Cross-referencing domain availability...",
+          "Decoding geolocation hashes..."
+        ];
+        logInterval = setInterval(() => {
+          const randomLog = mockLogs[Math.floor(Math.random() * mockLogs.length)];
+          setLogs(prev => {
+             const timeStr = new Date().toISOString().split('T')[1].slice(0,8);
+             const newLogs = [...prev, `[${timeStr}] [INFO] ${randomLog}`];
+             return newLogs.slice(-25); // Keep last 25 lines
+          });
+        }, 1200);
+      }
     } else {
       setTimeElapsed(0);
     }
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (logInterval) clearInterval(logInterval);
+    };
   }, [status]);
 
   const handleScrape = async () => {
@@ -81,8 +109,16 @@ export const Dashboard: React.FC = () => {
     setResults([]);
     setSidebarOpen(false);
 
+    const t = () => new Date().toISOString().split('T')[1].slice(0,8);
+    setLogs([
+      `[${t()}] [SYSTEM] Initializing LeadMiner engine v2.0...`,
+      `[${t()}] [CONFIG] Target: "${filters.query}" in "${filters.location}"`,
+    ]);
+
     try {
       const runId = await startScrapeJob(apiKey, filters);
+      setLogs(prev => [...prev.slice(-24), `[${t()}] [APIFY] Spawning worker actor. Run ID: ${runId}`]);
+      
       let isRunning = true;
       let finalDatasetId = '';
 
@@ -94,9 +130,12 @@ export const Dashboard: React.FC = () => {
           finalDatasetId = statusData.datasetId;
         } else if (['FAILED', 'ABORTED', 'TIMED-OUT'].includes(statusData.status)) {
           throw new Error(`Scraper run failed with status: ${statusData.status}`);
+        } else {
+          setLogs(prev => [...prev.slice(-24), `[${t()}] [SYSTEM] Worker status: ${statusData.status}...`]);
         }
       }
 
+      setLogs(prev => [...prev.slice(-24), `[${t()}] [SYSTEM] Run complete. Finalizing dataset ${finalDatasetId}...`]);
       setStatus('FETCHING');
       const items = await fetchDatasetItems(apiKey, finalDatasetId);
       const filtered = items.filter(item => {
@@ -426,39 +465,79 @@ export const Dashboard: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Loading progress bar */}
+          {/* Console Output Window */}
           <AnimatePresence>
             {loading && (
               <motion.div
-                initial={{ opacity: 0, scaleX: 0 }}
-                animate={{ opacity: 1, scaleX: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="glass rounded-2xl p-5"
+                className="glass rounded-2xl border border-white/[0.06] overflow-hidden flex flex-col shadow-2xl shadow-indigo-500/10"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                      <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" />
+                {/* Console header */}
+                <div className="bg-[#0b0f1a] border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/90 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/90 shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
+                      <div className="w-3 h-3 rounded-full bg-emerald-500/90 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-200">
-                        {status === 'FETCHING' ? 'Fetching dataset…' : 'Scraping Google Maps…'}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {status === 'FETCHING'
-                          ? 'Downloading your leads from Apify'
-                          : `Running actor on Apify cloud · ${formatTime(timeElapsed)} elapsed`}
-                      </p>
+                    <div className="flex items-center gap-2 px-2 py-1 bg-white/[0.03] rounded-md border border-white/[0.05]">
+                       <Loader2 className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
+                       <span className="text-xs font-mono font-medium text-slate-300">
+                         {status === 'FETCHING' ? 'root@leadminer:~/dataset/fetch' : 'root@leadminer:~/engine/scrape'}
+                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-500" />
-                    <span className="text-sm font-mono font-bold text-slate-300">{formatTime(timeElapsed)}</span>
+                  <div className="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.05] px-2.5 py-1 rounded-md">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="text-xs font-mono font-bold text-indigo-300">{formatTime(timeElapsed)}</span>
                   </div>
                 </div>
-                {/* Indeterminate bar */}
-                <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full w-1/3 bg-gradient-to-r from-indigo-500 to-sky-400 rounded-full shimmer" />
+                
+                {/* Console body */}
+                <div className="p-5 font-mono text-[11px] md:text-[13px] leading-relaxed text-slate-300 h-[280px] overflow-y-auto flex flex-col justify-end bg-black/50 backdrop-blur-3xl relative">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/5 via-transparent to-transparent pointer-events-none" />
+                  <div className="space-y-1.5 w-full relative z-10 transition-all duration-300">
+                    {logs.map((log, i) => {
+                      const isError = log.includes('[ERROR]');
+                      const isSystem = log.includes('[SYSTEM]');
+                      const isConfig = log.includes('[CONFIG]');
+                      const isApify = log.includes('[APIFY]');
+                      
+                      let colorClass = 'text-slate-400';
+                      if (isError) colorClass = 'text-red-400 font-semibold';
+                      else if (isSystem) colorClass = 'text-indigo-300 font-semibold';
+                      else if (isConfig) colorClass = 'text-emerald-400';
+                      else if (isApify) colorClass = 'text-sky-400 font-medium';
+
+                      return (
+                        <motion.div 
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`break-all ${colorClass} flex gap-2`}
+                        >
+                          <span className="text-slate-600 select-none">{'>'}</span>
+                          <span>{log}</span>
+                        </motion.div>
+                      );
+                    })}
+                    {/* Blinking cursor */}
+                    <div className="flex gap-2 items-center">
+                      <span className="text-slate-600 select-none">{'>'}</span>
+                      <motion.div 
+                        key="cursor"
+                        animate={{ opacity: [1, 0, 1] }}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                        className="inline-block w-2 bg-indigo-400 h-3.5 align-middle shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* Indeterminate bar at the bottom */}
+                <div className="w-full h-1 bg-white/[0.02]">
+                  <div className="h-full w-1/3 bg-gradient-to-r from-indigo-500 to-sky-400 shimmer" />
                 </div>
               </motion.div>
             )}
