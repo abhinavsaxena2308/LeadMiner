@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyRound, ArrowRight, Loader2, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useApiKey } from '../contexts/ApiKeyContext';
+import { GoogleMapsPin } from './Logo';
 
 export const ApiKeyModal: React.FC = () => {
   const { apiKey, saveApiKey, error } = useApiKey();
@@ -37,12 +38,12 @@ export const ApiKeyModal: React.FC = () => {
         {/* Glow ring - remove for Apple theme or make subtle */}
         <div className="absolute -inset-px rounded-[28px] bg-gradient-to-br from-black/[0.03] to-transparent pointer-events-none" />
 
-        <div className="relative glass rounded-[28px] p-8">
+        <div className="relative glass rounded-[28px] p-8 shadow-premium-lg">
           {/* Icon */}
           <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-black/[0.04] flex items-center justify-center shadow-sm">
-                <KeyRound className="w-8 h-8 text-blue-500" />
+            <div className="relative group cursor-pointer">
+              <div className="w-16 h-16 rounded-2xl bg-white border border-black/[0.04] flex items-center justify-center shadow-premium-sm hover:shadow-premium-md transition-all group-hover:-translate-y-1">
+                <GoogleMapsPin className="w-10 h-10" />
               </div>
             </div>
           </div>
@@ -66,7 +67,7 @@ export const ApiKeyModal: React.FC = () => {
                 placeholder="apify_api_xxxxxxxxxxxx"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
-                className="input-field glow-focus pl-10 font-mono text-sm"
+                className="input-field glow-focus pl-10 font-mono text-sm shadow-premium-sm"
                 required
                 autoFocus
               />
@@ -88,7 +89,7 @@ export const ApiKeyModal: React.FC = () => {
             <button
               type="submit"
               disabled={loading || !inputValue.trim()}
-              className="relative w-full group overflow-hidden rounded-xl py-3.5 font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-slate-900 hover:bg-slate-800 shadow-md"
+              className="relative w-full group overflow-hidden rounded-xl py-3.5 font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-slate-900 hover:bg-slate-800 shadow-premium-md hover:shadow-premium-lg"
             >
               <span className="relative flex items-center justify-center gap-2">
                 {loading ? (

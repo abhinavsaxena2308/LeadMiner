@@ -49,7 +49,7 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'orange' | 'red' | 
     slate:   'bg-white text-slate-600 border-slate-200',
   };
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-[6px] border text-[10px] font-bold uppercase tracking-widest ${styles[variant]} shadow-sm`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-[6px] border text-[10px] font-bold uppercase tracking-widest ${styles[variant]} shadow-premium-sm`}>
       {children}
     </span>
   );
@@ -94,7 +94,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
       `https://www.google.com/maps/search/${encodeURIComponent(lead.title || '')}`);
 
   return (
-    <div className="glass rounded-[28px] overflow-hidden flex flex-col shadow-sm">
+    <div className="glass rounded-[28px] overflow-hidden flex flex-col shadow-premium-sm mb-8 animate-slide-up">
       {/* ── Toolbar ─────────────────────────────────────────── */}
       <div className="px-5 py-3.5 border-b border-black/[0.04] flex items-center justify-between gap-4 bg-white/70 sticky top-0 z-10 backdrop-blur-3xl">
         <div className="flex items-center gap-3">
@@ -109,14 +109,14 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
           <button
             onClick={() => exportToCsv(data.filter((_, i) => selected.has(i)), 'leadminer-selected')}
             disabled={selected.size === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-premium-sm disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download className="w-3.5 h-3.5" />
             Export Selected
           </button>
           <button
             onClick={() => exportToCsv(data, 'leadminer-all')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-white bg-slate-900 hover:bg-slate-800 transition-all shadow-md group"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-xl text-white bg-slate-900 hover:bg-slate-800 transition-all shadow-premium-md hover:shadow-premium-lg group"
           >
             <Download className="w-3.5 h-3.5 text-white/70 group-hover:text-white" />
             Export All CSV
@@ -197,7 +197,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                         <a
                           href={url} target="_blank" rel="noopener noreferrer"
                           title="Open in Google Maps"
-                          className="mt-0.5 shrink-0 p-1.5 rounded-[8px] bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:bg-slate-50 transition-colors shadow-sm"
+                          className="mt-0.5 shrink-0 p-1.5 rounded-[8px] bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:bg-slate-50 transition-colors shadow-premium-sm"
                           onClick={e => e.stopPropagation()}
                         >
                           <Navigation className="w-3 h-3" />
@@ -246,7 +246,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                     {/* Rating */}
                     <td className="px-4 py-3.5" onClick={() => toggleExpand(idx)}>
                       {lead.totalScore ? (
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-yellow-50 border border-yellow-100 whitespace-nowrap shadow-sm">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-yellow-50 border border-yellow-100 whitespace-nowrap shadow-premium-sm">
                           <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                           <span className="text-[12px] font-bold text-yellow-700">{lead.totalScore}</span>
                           <span className="text-[10px] text-yellow-600/70">({lead.reviewsCount ?? 0})</span>
@@ -260,7 +260,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({ data }) => {
                     <td className="px-4 py-3.5 hidden lg:table-cell" onClick={() => toggleExpand(idx)}>
                       <div className="flex flex-wrap gap-1 max-w-[150px]">
                         {lead.categoryName && (
-                          <span className="px-2 py-0.5 text-[11px] bg-white border border-slate-200 shadow-sm rounded-[6px] text-slate-600 font-medium">
+                          <span className="px-2 py-0.5 text-[11px] bg-white border border-slate-200 shadow-premium-sm rounded-[6px] text-slate-600 font-medium">
                             {lead.categoryName}
                           </span>
                         )}

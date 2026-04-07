@@ -8,6 +8,11 @@
   :root {
     --brand: 217 91% 60%;
     --sidebar-w: 320px;
+    
+    /* ── Apple-inspired Layered Shadows ── */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    --shadow-md: 0 4px 10px -2px rgba(0,0,0,0.05), 0 12px 24px -4px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.08);
+    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,0.06), 0 40px 80px -15px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.1);
   }
 
   * {
@@ -22,7 +27,8 @@
 @layer components {
   /* ── Glass card ── */
   .glass {
-    @apply bg-white/70 backdrop-blur-3xl border border-black/[0.04] shadow-[0_4px_24px_rgba(0,0,0,0.03)];
+    box-shadow: var(--shadow-md);
+    @apply bg-white/70 backdrop-blur-3xl border border-black/[0.04];
   }
 
   /* ── Premium input ── */
@@ -54,6 +60,17 @@
 }
 
 @layer utilities {
+  .shadow-premium-sm { box-shadow: var(--shadow-sm); }
+  .shadow-premium-md { box-shadow: var(--shadow-md); }
+  .shadow-premium-lg { box-shadow: var(--shadow-lg); }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-0.5;
+    &:hover {
+      box-shadow: var(--shadow-lg);
+    }
+  }
+
   /* ── Premium scrollbar ── */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }

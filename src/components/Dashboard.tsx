@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, MapPin, Loader2, Filter,
+  Search, Loader2, Filter,
   LogOut, Zap, TrendingUp, Database, Clock,
   ChevronDown, ChevronUp, Globe, Phone, Star
 } from 'lucide-react';
 import { useApiKey } from '../contexts/ApiKeyContext';
 import { startScrapeJob, checkScrapeStatus, fetchDatasetItems, type ScrapeFilters } from '../services/apify';
 import { ResultsTable } from './ResultsTable';
+import { GoogleMapsPin } from './Logo';
 
 // ── Reusable Toggle ────────────────────────────────────────────────
 const Toggle: React.FC<{
@@ -30,7 +31,7 @@ const Toggle: React.FC<{
 const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string | number; sub?: string; color: string }> = ({
   icon, label, value, sub, color,
 }) => (
-  <div className="glass rounded-2xl p-4 flex items-center gap-4">
+  <div className="glass hover-lift rounded-2xl p-4 flex items-center gap-4">
     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
       {icon}
     </div>
@@ -168,12 +169,14 @@ export const Dashboard: React.FC = () => {
     <div className={`min-h-screen flex flex-col transition-all duration-500 ${!apiKey ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
 
       {/* ── Top Nav ───────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-black/[0.04] bg-white/70 backdrop-blur-3xl">
+      <header className="sticky top-0 z-30 border-b border-black/[0.04] bg-white/70 backdrop-blur-3xl shadow-premium-sm">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="relative w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center shadow-sm">
-              <MapPin className="w-5 h-5 text-white" />
+            <div className="relative group cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-white border border-black/[0.04] flex items-center justify-center shadow-sm hover:shadow-md transition-all group-hover:-translate-y-0.5">
+                <GoogleMapsPin className="w-7 h-7" />
+              </div>
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
             </div>
             <div>
@@ -379,7 +382,7 @@ export const Dashboard: React.FC = () => {
                 <button
                   onClick={handleScrape}
                   disabled={loading || !filters.query}
-                  className="animate-slide-up w-full relative overflow-hidden rounded-xl py-3.5 font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-slate-900 hover:bg-slate-800 shadow-md group"
+                  className="animate-slide-up w-full relative overflow-hidden rounded-xl py-3.5 font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-slate-900 hover:bg-slate-800 shadow-premium-md hover:shadow-premium-lg group"
                   style={{ animationDelay: '120ms' }}
                 >
                   <span className="relative flex items-center justify-center gap-2.5">
