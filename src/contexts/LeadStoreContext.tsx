@@ -11,15 +11,6 @@ export interface Lead {
   data: any;
 }
 
-export interface ScrapeJob {
-  id: string;
-  query: string;
-  location: string;
-  timestamp: string;
-  resultsCount: number;
-  datasetId: string;
-}
-
 export interface Collection {
   id: string;
   name: string;
@@ -29,11 +20,8 @@ export interface Collection {
 }
 
 interface LeadStoreContextType {
-  jobs: ScrapeJob[];
   collections: Collection[];
   leads: Lead[];
-  saveJob: (job: Omit<ScrapeJob, 'id' | 'timestamp'>) => void;
-  deleteJob: (id: string) => void;
   createCollection: (name: string, description?: string) => string;
   deleteCollection: (id: string) => void;
   addLeadsToCollection: (collectionId: string, rawLeads: any[]) => void;
@@ -44,18 +32,15 @@ interface LeadStoreContextType {
 const LeadStoreContext = createContext<LeadStoreContextType | undefined>(undefined);
 
 export const LeadStoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load from localStorage
   useEffect(() => {
-    const storedJobs = localStorage.getItem('leadminer_jobs');
     const storedCols = localStorage.getItem('leadminer_collections');
     const storedLeads = localStorage.getItem('leadminer_leads');
 
-    if (storedJobs) setJobs(JSON.parse(storedJobs));
     if (storedCols) setCollections(JSON.parse(storedCols));
     if (storedLeads) setLeads(JSON.parse(storedLeads));
     
@@ -65,23 +50,9 @@ export const LeadStoreProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Sync to localStorage
   useEffect(() => {
     if (!isInitialized) return;
-    localStorage.setItem('leadminer_jobs', JSON.stringify(jobs));
     localStorage.setItem('leadminer_collections', JSON.stringify(collections));
     localStorage.setItem('leadminer_leads', JSON.stringify(leads));
-  }, [jobs, collections, leads, isInitialized]);
-
-  const saveJob = (job: Omit<ScrapeJob, 'id' | 'timestamp'>) => {
-    const newJob: ScrapeJob = {
-      ...job,
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-    };
-    setJobs(prev => [newJob, ...prev].slice(0, 50)); // Keep last 50 runs
-  };
-
-  const deleteJob = (id: string) => {
-    setJobs(prev => prev.filter(j => j.id !== id));
-  };
+  }, [collections, leads, isInitialized]);
 
   const createCollection = (name: string, description?: string) => {
     const id = crypto.randomUUID();
@@ -138,8 +109,7 @@ export const LeadStoreProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   return (
     <LeadStoreContext.Provider value={{ 
-      jobs, collections, leads, 
-      saveJob, deleteJob, 
+      collections, leads, 
       createCollection, deleteCollection, 
       addLeadsToCollection, updateLeadStatus, deleteLead 
     }}>

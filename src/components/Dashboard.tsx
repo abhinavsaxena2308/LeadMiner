@@ -9,7 +9,6 @@ import { useApiKey } from '../contexts/ApiKeyContext';
 import { useLeadStore } from '../contexts/LeadStoreContext';
 import { startScrapeJob, checkScrapeStatus, fetchDatasetItems, type ScrapeFilters } from '../services/apify';
 import { ResultsTable } from './ResultsTable';
-import { HistoryView } from './HistoryView';
 import { CollectionsView } from './CollectionsView';
 import { GoogleMapsPin } from './Logo';
 
@@ -48,7 +47,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string |
 
 export const Dashboard: React.FC = () => {
   const { apiKey, clearApiKey } = useApiKey();
-  const { saveJob, leads, collections } = useLeadStore();
+  const { leads, collections } = useLeadStore();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>('IDLE');
   const [results, setResults] = useState<any[]>([]);
@@ -57,7 +56,7 @@ export const Dashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
-  const [currentView, setCurrentView] = useState<'search' | 'history' | 'collections'>('search');
+  const [currentView, setCurrentView] = useState<'search' | 'collections'>('search');
   const [viewTitle, setViewTitle] = useState('Search Engine');
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
 
@@ -156,14 +155,6 @@ export const Dashboard: React.FC = () => {
       setResults(filtered);
       setStatus('DONE');
       
-      // Persist to history
-      saveJob({
-        query: filters.query,
-        location: filters.location,
-        resultsCount: filtered.length,
-        datasetId: finalDatasetId
-      });
-      
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during scraping');
       setStatus('ERROR');
@@ -179,14 +170,6 @@ export const Dashboard: React.FC = () => {
     setCurrentView('search');
     const col = collections.find(c => c.id === id);
     setViewTitle(`Collection: ${col?.name || 'Saved Leads'}`);
-  };
-
-  const handleReloadJob = (job: any) => {
-    // In a real app we'd fetchDatasetItems(apiKey, job.datasetId)
-    // For MVP we'll show UI to reload
-    setCurrentView('search');
-    setViewTitle(`Job History: ${job.query}`);
-    setErrorMsg('Reloading dynamic datasets requires re-fetching from Apify. (Feature in progress)');
   };
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
@@ -231,12 +214,6 @@ export const Dashboard: React.FC = () => {
               className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${currentView === 'collections' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
               Collections
-            </button>
-            <button
-              onClick={() => { setCurrentView('history'); setViewTitle('Run History'); }}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${currentView === 'history' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              History
             </button>
           </div>
 
@@ -632,8 +609,6 @@ export const Dashboard: React.FC = () => {
                 </motion.div>
               ) : null}
             </>
-          ) : currentView === 'history' ? (
-            <HistoryView onReloadJob={handleReloadJob} />
           ) : (
             <CollectionsView onOpenCollection={handleOpenCollection} />
           )}
