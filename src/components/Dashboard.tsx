@@ -6,8 +6,11 @@ import {
   ChevronDown, ChevronUp, Globe, Phone, Star
 } from 'lucide-react';
 import { useApiKey } from '../contexts/ApiKeyContext';
+import { useLeadStore } from '../contexts/LeadStoreContext';
 import { startScrapeJob, checkScrapeStatus, fetchDatasetItems, type ScrapeFilters } from '../services/apify';
 import { ResultsTable } from './ResultsTable';
+import { HistoryView } from './HistoryView';
+import { CollectionsView } from './CollectionsView';
 import { GoogleMapsPin } from './Logo';
 
 // ── Reusable Toggle ────────────────────────────────────────────────
@@ -45,6 +48,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string |
 
 export const Dashboard: React.FC = () => {
   const { apiKey, clearApiKey } = useApiKey();
+  const { saveJob, leads, collections } = useLeadStore();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>('IDLE');
   const [results, setResults] = useState<any[]>([]);
@@ -53,6 +57,9 @@ export const Dashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
+  const [currentView, setCurrentView] = useState<'search' | 'history' | 'collections'>('search');
+  const [viewTitle, setViewTitle] = useState('Search Engine');
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<ScrapeFilters>({
     query: 'Restaurants',
@@ -148,12 +155,38 @@ export const Dashboard: React.FC = () => {
 
       setResults(filtered);
       setStatus('DONE');
+      
+      // Persist to history
+      saveJob({
+        query: filters.query,
+        location: filters.location,
+        resultsCount: filtered.length,
+        datasetId: finalDatasetId
+      });
+      
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during scraping');
       setStatus('ERROR');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenCollection = (id: string) => {
+    setActiveCollectionId(id);
+    const colLeads = leads.filter(l => l.collectionId === id).map(l => l.data);
+    setResults(colLeads);
+    setCurrentView('search');
+    const col = collections.find(c => c.id === id);
+    setViewTitle(`Collection: ${col?.name || 'Saved Leads'}`);
+  };
+
+  const handleReloadJob = (job: any) => {
+    // In a real app we'd fetchDatasetItems(apiKey, job.datasetId)
+    // For MVP we'll show UI to reload
+    setCurrentView('search');
+    setViewTitle(`Job History: ${job.query}`);
+    setErrorMsg('Reloading dynamic datasets requires re-fetching from Apify. (Feature in progress)');
   };
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
@@ -173,7 +206,7 @@ export const Dashboard: React.FC = () => {
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="relative group cursor-pointer">
+            <div className="relative group cursor-pointer" onClick={() => { setCurrentView('search'); setViewTitle('Search Engine'); }}>
               <div className="w-10 h-10 rounded-xl bg-white border border-black/[0.04] flex items-center justify-center shadow-sm hover:shadow-md transition-all group-hover:-translate-y-0.5">
                 <GoogleMapsPin className="w-7 h-7" />
               </div>
@@ -181,8 +214,30 @@ export const Dashboard: React.FC = () => {
             </div>
             <div>
               <h1 className="text-[15px] font-bold text-slate-900 leading-none tracking-tight">LeadMiner<span className="text-blue-500"> AI</span></h1>
-              <p className="text-[10px] text-slate-500 font-medium leading-none mt-0.5">Google Maps Scraper</p>
+              <p className="text-[10px] text-slate-500 font-medium leading-none mt-0.5">{viewTitle}</p>
             </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-black/[0.03]">
+            <button
+              onClick={() => { setCurrentView('search'); setViewTitle('Search Engine'); }}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${currentView === 'search' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Search
+            </button>
+            <button
+              onClick={() => { setCurrentView('collections'); setViewTitle('Saved Collections'); }}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${currentView === 'collections' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Collections
+            </button>
+            <button
+              onClick={() => { setCurrentView('history'); setViewTitle('Run History'); }}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${currentView === 'history' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              History
+            </button>
           </div>
 
           {/* Right controls */}
@@ -218,7 +273,7 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* ── Body ─────────────────────────────────────────────── */}
-      <div className="flex flex-1 max-w-screen-2xl mx-auto w-full px-4 sm:px-6 py-6 gap-6">
+      <div className="flex flex-1 max-w-screen-2xl mx-auto w-full px-4 sm:px-6 py-6 gap-6 relative">
 
         {/* ── Sidebar ──────────────────────────────────────── */}
         {/* Desktop always-visible, mobile slide-over */}
@@ -420,159 +475,168 @@ export const Dashboard: React.FC = () => {
 
         {/* ── Main Content ────────────────────────────────── */}
         <main className="flex-1 min-w-0 flex flex-col gap-5">
-          {/* Stats row — only visible after results */}
-          <AnimatePresence>
-            {statsVisible && (
-              <motion.div
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-              >
-                <StatCard
-                  icon={<Database className="w-5 h-5 text-blue-500" />}
-                  label="Total Leads"
-                  value={results.length}
-                  sub="results found"
-                  color="bg-blue-50 border border-blue-100"
-                />
-                <StatCard
-                  icon={<Globe className="w-5 h-5 text-orange-500" />}
-                  label="No Website"
-                  value={noWebsiteCount}
-                  sub="web dev targets"
-                  color="bg-orange-50 border border-orange-100"
-                />
-                <StatCard
-                  icon={<Star className="w-5 h-5 text-yellow-500" />}
-                  label="Avg Rating"
-                  value={avgRating}
-                  sub="stars average"
-                  color="bg-yellow-50 border border-yellow-100"
-                />
-                <StatCard
-                  icon={<Phone className="w-5 h-5 text-emerald-500" />}
-                  label="Has Phone"
-                  value={withPhoneCount}
-                  sub="contact notes"
-                  color="bg-emerald-50 border border-emerald-100"
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Console Output Window */}
-          <AnimatePresence>
-            {loading && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="glass rounded-2xl border border-white/[0.06] overflow-hidden flex flex-col shadow-2xl shadow-indigo-500/10"
-              >
-                {/* Console header */}
-                <div className="bg-slate-50 border-b border-black/[0.04] px-4 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-[#ff5f57] shadow-sm" />
-                      <div className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-sm" />
-                      <div className="w-3 h-3 rounded-full bg-[#28c840] shadow-sm" />
-                    </div>
-                    <div className="flex items-center gap-2 px-2 py-1 bg-black/[0.03] rounded-md border border-black/[0.05]">
-                       <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
-                       <span className="text-xs font-mono font-medium text-slate-600">
-                         {status === 'FETCHING' ? 'root@leadminer:~/dataset/fetch' : 'root@leadminer:~/engine/scrape'}
-                       </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-black/[0.03] border border-black/[0.05] px-2.5 py-1 rounded-md">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-mono font-bold text-blue-600">{formatTime(timeElapsed)}</span>
-                  </div>
-                </div>
-                
-                {/* Console body */}
-                <div className="p-5 font-mono text-[11px] md:text-[13px] leading-relaxed text-slate-700 h-[280px] overflow-y-auto flex flex-col justify-end bg-white/80 backdrop-blur-3xl relative">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent pointer-events-none" />
-                  <div className="space-y-1.5 w-full relative z-10 transition-all duration-300">
-                    {logs.map((log, i) => {
-                      const isError = log.includes('[ERROR]');
-                      const isSystem = log.includes('[SYSTEM]');
-                      const isConfig = log.includes('[CONFIG]');
-                      const isApify = log.includes('[APIFY]');
-                      
-                      let colorClass = 'text-slate-500';
-                      if (isError) colorClass = 'text-red-500 font-semibold';
-                      else if (isSystem) colorClass = 'text-blue-600 font-semibold';
-                      else if (isConfig) colorClass = 'text-emerald-600';
-                      else if (isApify) colorClass = 'text-indigo-600 font-medium';
-
-                      return (
-                        <motion.div 
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className={`break-all ${colorClass} flex gap-2`}
-                        >
-                          <span className="text-slate-400 select-none">{'>'}</span>
-                          <span>{log}</span>
-                        </motion.div>
-                      );
-                    })}
-                    {/* Blinking cursor */}
-                    <div className="flex gap-2 items-center">
-                      <span className="text-slate-400 select-none">{'>'}</span>
-                      <motion.div 
-                        key="cursor"
-                        animate={{ opacity: [1, 0, 1] }}
-                        transition={{ repeat: Infinity, duration: 1 }}
-                        className="inline-block w-2 bg-blue-500 h-3.5 align-middle shadow-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-                {/* Indeterminate bar at the bottom */}
-                <div className="w-full h-1 bg-white/[0.02]">
-                  <div className="h-full w-1/3 bg-gradient-to-r from-indigo-500 to-sky-400 shimmer" />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Results / Empty state */}
-          {results.length > 0 ? (
-            <ResultsTable data={results} />
-          ) : status === 'IDLE' || status === 'ERROR' ? (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex-1 glass rounded-[28px] flex flex-col items-center justify-center text-center p-12 min-h-[420px]"
-            >
-              <div className="relative mb-6">
-                <div className="w-24 h-24 rounded-[28px] bg-slate-50 border border-slate-200/60 flex items-center justify-center shadow-sm">
-                  <TrendingUp className="w-10 h-10 text-slate-400" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-md border-2 border-white">
-                  <Zap className="w-3.5 h-3.5 text-white fill-current" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Ready to mine leads?</h3>
-              <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed mb-8">
-                Configure your search query and filters in the sidebar, then hit <strong className="font-semibold text-slate-900">Start Lead Engine</strong> to extract real Google Maps data.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2.5">
-                {['Restaurants', 'Plumbers', 'Dentists', 'Gyms', 'Lawyers'].map(q => (
-                  <button
-                    key={q}
-                    onClick={() => setFilters(f => ({ ...f, query: q }))}
-                    className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm"
+          {/* 🧩 Dynamic Views ───────────────────────────────── */}
+          {currentView === 'search' ? (
+            <>
+              {/* Stats row — only visible after results */}
+              <AnimatePresence>
+                {statsVisible && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    className="grid grid-cols-2 sm:grid-cols-4 gap-3"
                   >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          ) : null}
+                    <StatCard
+                      icon={<Database className="w-5 h-5 text-blue-500" />}
+                      label="Total Leads"
+                      value={results.length}
+                      sub="results found"
+                      color="bg-blue-50 border border-blue-100"
+                    />
+                    <StatCard
+                      icon={<Globe className="w-5 h-5 text-orange-500" />}
+                      label="No Website"
+                      value={noWebsiteCount}
+                      sub="web dev targets"
+                      color="bg-orange-50 border border-orange-100"
+                    />
+                    <StatCard
+                      icon={<Star className="w-5 h-5 text-yellow-500" />}
+                      label="Avg Rating"
+                      value={avgRating}
+                      sub="stars average"
+                      color="bg-yellow-50 border border-yellow-100"
+                    />
+                    <StatCard
+                      icon={<Phone className="w-5 h-5 text-emerald-500" />}
+                      label="Has Phone"
+                      value={withPhoneCount}
+                      sub="contact notes"
+                      color="bg-emerald-50 border border-emerald-100"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Console Output Window */}
+              <AnimatePresence>
+                {loading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="glass rounded-2xl border border-white/[0.06] overflow-hidden flex flex-col shadow-2xl shadow-indigo-500/10"
+                  >
+                    {/* Console header */}
+                    <div className="bg-slate-50 border-b border-black/[0.04] px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex gap-1.5">
+                          <div className="w-3 h-3 rounded-full bg-[#ff5f57] shadow-sm" />
+                          <div className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-sm" />
+                          <div className="w-3 h-3 rounded-full bg-[#28c840] shadow-sm" />
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 bg-black/[0.03] rounded-md border border-black/[0.05]">
+                           <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+                           <span className="text-xs font-mono font-medium text-slate-600">
+                             {status === 'FETCHING' ? 'root@leadminer:~/dataset/fetch' : 'root@leadminer:~/engine/scrape'}
+                           </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-black/[0.03] border border-black/[0.05] px-2.5 py-1 rounded-md">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs font-mono font-bold text-blue-600">{formatTime(timeElapsed)}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Console body */}
+                    <div className="p-5 font-mono text-[11px] md:text-[13px] leading-relaxed text-slate-700 h-[280px] overflow-y-auto flex flex-col justify-end bg-white/80 backdrop-blur-3xl relative">
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent pointer-events-none" />
+                      <div className="space-y-1.5 w-full relative z-10 transition-all duration-300">
+                        {logs.map((log, i) => {
+                          const isError = log.includes('[ERROR]');
+                          const isSystem = log.includes('[SYSTEM]');
+                          const isConfig = log.includes('[CONFIG]');
+                          const isApify = log.includes('[APIFY]');
+                          
+                          let colorClass = 'text-slate-500';
+                          if (isError) colorClass = 'text-red-500 font-semibold';
+                          else if (isSystem) colorClass = 'text-blue-600 font-semibold';
+                          else if (isConfig) colorClass = 'text-emerald-600';
+                          else if (isApify) colorClass = 'text-indigo-600 font-medium';
+
+                          return (
+                            <motion.div 
+                              key={i}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className={`break-all ${colorClass} flex gap-2`}
+                            >
+                              <span className="text-slate-400 select-none">{'>'}</span>
+                              <span>{log}</span>
+                            </motion.div>
+                          );
+                        })}
+                        {/* Blinking cursor */}
+                        <div className="flex gap-2 items-center">
+                          <span className="text-slate-400 select-none">{'>'}</span>
+                          <motion.div 
+                            key="cursor"
+                            animate={{ opacity: [1, 0, 1] }}
+                            transition={{ repeat: Infinity, duration: 1 }}
+                            className="inline-block w-2 bg-blue-500 h-3.5 align-middle shadow-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Indeterminate bar at the bottom */}
+                    <div className="w-full h-1 bg-white/[0.02]">
+                      <div className="h-full w-1/3 bg-gradient-to-r from-indigo-500 to-sky-400 shimmer" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Results / Empty state */}
+              {results.length > 0 ? (
+                <ResultsTable data={results} isSavedView={!!activeCollectionId} />
+              ) : status === 'IDLE' || status === 'ERROR' ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex-1 glass rounded-[28px] flex flex-col items-center justify-center text-center p-12 min-h-[420px]"
+                >
+                  <div className="relative mb-6">
+                    <div className="w-24 h-24 rounded-[28px] bg-white border border-slate-200/60 flex items-center justify-center shadow-premium-sm">
+                      <TrendingUp className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-md border-2 border-white">
+                      <Zap className="w-3.5 h-3.5 text-white fill-current" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Ready to mine leads?</h3>
+                  <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed mb-8">
+                    Configure your search query and filters in the sidebar, then hit <strong className="font-semibold text-slate-900">Start Lead Engine</strong> to extract real Google Maps data.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2.5">
+                    {['Restaurants', 'Plumbers', 'Dentists', 'Gyms', 'Lawyers'].map(q => (
+                      <button
+                        key={q}
+                        onClick={() => setFilters(f => ({ ...f, query: q }))}
+                        className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : null}
+            </>
+          ) : currentView === 'history' ? (
+            <HistoryView onReloadJob={handleReloadJob} />
+          ) : (
+            <CollectionsView onOpenCollection={handleOpenCollection} />
+          )}
         </main>
       </div>
     </div>
